@@ -1,0 +1,52 @@
+extends layout
+
+block content
+  h1 #{title}
+
+  form(method='POST' action='')
+    div.form-group
+      label(for='first_name') First Name:
+      input#first_name.form-control(type='text' placeholder='First name (Christian) last' name='first_name' required='true' value=(undefined===customer ? '' : customer.first_name) )
+      label(for='family_name') Family Name:
+      input#family_name.form-control(type='text' placeholder='Family name (surname)' name='family_name' required='true' value=(undefined===customer ? '' : customer.family_name))
+    div.form-group
+      label(for='table') Table:
+      select#table.form-control(type='select', placeholder='Select table' name='table' required='true' )
+        - tables.sort(function(a, b) {return (a.number < b.number) ? -1 : (a.number > b.number) ? 1 : 0;});
+        for table in tables
+          if selected_table
+            option(value=table._id selected=(selected_table.toString()===table._id.toString() ? 'selected' : false) ) #{table.number}
+          else
+            option(value=table._id) #{table.number}
+    div.form-group
+      label(for='date') Date:
+      input#date.form-control(type='date' name='date' value=date readonly='true')
+      label(for='start') Start:
+      select#table.form-control(type='select', placeholder='Select start time' name='start' required='true' )
+        for time, i in start_times
+            option(value=i) #{time}
+      label(for='end') End:
+      select#table.form-control(type='select', placeholder='Select end time' name='end' required='true' )
+        for time, i in end_times
+            option(value=i) #{time}
+    button.btn.btn-primary(type='submit') Submit
+
+  div
+    table(border="1")
+      tbody
+        td='Table\\Time'
+        each time in start_times
+          td=time
+        each table in tables
+          tr
+            td=table.number
+              each time in start_times
+                if reservation_table[table.number][time]
+                  td(bgcolor="#ff0000")
+                else
+                  td(bgcolor="#00ff00")
+
+  if errors
+   ul
+    for error in errors
+     li!= error.msg

@@ -1,0 +1,10 @@
+extends layout
+
+block content
+  h1 #{title}
+
+  ul
+    - tables.sort(function(a, b) {return (a.number < b.number) ? -1 : (a.number > b.number) ? 1 : 0;});
+    each table in tables
+      li
+        !{table.number}

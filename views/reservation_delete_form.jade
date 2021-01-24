@@ -1,0 +1,29 @@
+extends layout
+
+block content
+  h1 #{title}
+
+  form(method='POST' action='')
+    div.form-group
+      label(for='first_name') First Name:
+      input#first_name.form-control(type='text' placeholder='First name (Christian) last' name='first_name' required='true' value=customer.first_name readonly='true')
+      label(for='family_name') Family Name:
+      input#family_name.form-control(type='text' placeholder='Family name (surname)' name='family_name' required='true' value=customer.family_name readonly='true')
+      ul
+        each reservation in reservations
+          li
+            input(type="checkbox", name="res", value=reservation._id)
+            strong  Date:
+            |  #{reservation.date}
+            strong  Start:
+            |  #{reservation.start_time}
+            strong  End:
+            |  #{reservation.end_time}
+            strong  Table:
+            |  #{reservation.table}
+    button.btn.btn-primary(type='submit') Submit
+
+  if errors
+   ul
+    for error in errors
+     li!= error.msg
