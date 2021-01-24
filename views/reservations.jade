@@ -6,4 +6,13 @@ block content
   ul
     each reservation in reservations
       li
-        label #{reservation}
+        strong  Customer:
+        |  #{reservation.customer}
+        strong  Date:
+        |  #{reservation.date}
+        strong  Start:
+        |  #{reservation.start_time}
+        strong  End:
+        |  #{reservation.end_time}
+        strong  Table:
+        |  #{reservation.table}

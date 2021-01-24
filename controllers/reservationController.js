@@ -6,7 +6,7 @@ var async = require('async');
 const { DateTime } = require("luxon");
 
 var start_time_reservation = ['8:00', '9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00']
-var end_time_reservaion = ['9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00']
+var end_time_reservation = ['9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00']
 
 exports.reservations_get = function (req, res) {
     Reservation.find()
@@ -14,6 +14,16 @@ exports.reservations_get = function (req, res) {
         .populate('table')
         .exec(function (err, reservations) {
             if (err) { return next(err); }
+            res_list = reservations instanceof Array ? reservations : new Array(reservations);
+            reservations = res_list.map(res => {
+                return {
+                    date: DateTime.fromJSDate(res.date).toISODate(),
+                    start_time: res.start_time,
+                    end_time: res.end_time,
+                    table: res.table.number,
+                    customer: res.customer.name
+                };
+            });
             res.render('reservations', { title: 'Reservations', reservations: reservations });
         });
 };
@@ -50,7 +60,7 @@ function render_reservation_create(req, res, errors) {
             });
             results.reservations.forEach(reservation => {
                 var index_start = start_time_reservation.indexOf(reservation.start_time);
-                var index_end = end_time_reservaion.indexOf(reservation.end_time);
+                var index_end = end_time_reservation.indexOf(reservation.end_time);
                 for (var i = 0; i < start_time_reservation.length; i++) {
                     if (i >= index_start && i <= index_end) {
                         reservation_table[reservation.table.number][start_time_reservation[i]] = true
@@ -69,7 +79,7 @@ function render_reservation_create(req, res, errors) {
                 tables: results.tables,
                 selected_table: req.body.table,
                 start_times: start_time_reservation,
-                end_times: end_time_reservaion,
+                end_times: end_time_reservation,
                 reservation_table: reservation_table,
                 errors: errors
             });
@@ -115,7 +125,7 @@ function reservation_post(req, res) {
                 table: req.body.table,
                 date: req.body.date,
                 start_time: start_time_reservation[req.body.start],
-                end_time: end_time_reservaion[req.body.end]
+                end_time: end_time_reservation[req.body.end]
             });
             reservation.save(function (err) {
                 if (err) { return next(err); }
@@ -138,7 +148,7 @@ exports.reservation_create_post = [
             return;
         }
         //Check start and end time
-        if (req.body.start > req.body.end) {
+        if (parseInt(req.body.start) > parseInt(req.body.end)) {
             render_reservation_create(req, res, [{ msg: 'Booking start time must be less than end time' }]);
             return;
         }
@@ -153,14 +163,14 @@ exports.reservation_create_post = [
         },
             function (err, reservations) {
                 if (err) { return next(err); }
-                var index_start_current = start_time_reservation.indexOf(req.body.start_time);
-                var index_end_current = start_time_reservation.indexOf(req.body.start_time);
+                var index_start_current = parseInt(req.body.start);
+                var index_end_current = parseInt(req.body.end) + 1;
                 var crossing = reservations
                     .filter(reservation => reservation.table == req.body.table)
                     .some(reservation => {
                         var index_start = start_time_reservation.indexOf(reservation.start_time);
-                        var index_end = start_time_reservation.indexOf(reservation.start_time);
-                        return index_start_current <= index_start <= index_end_current || index_start <= index_start_current <= index_end;
+                        var index_end = end_time_reservation.indexOf(reservation.end_time) + 1;
+                        return (index_start_current <= index_start && index_start < index_end_current) || (index_start <= index_start_current && index_start_current < index_end);
                     });
                 if (crossing) {
                     render_reservation_create(req, res, [{ msg: 'Your time overlaps with the time of another client' }]);

@@ -1,0 +1,21 @@
+extends layout
+
+block content
+  h1 #{title}
+
+  form(method='POST' action='')
+    div.form-group
+      label(for='table') Number:
+      select#table.form-control(type='select', placeholder='Select table' name='table' required='true')
+        - tables.sort(function(a, b) {return (a.number < b.number) ? -1 : (a.number > b.number) ? 1 : 0;});
+        for table in tables
+          if selected_table
+            option(value=table._id selected=(selected_table.toString()===table._id.toString() ? 'selected' : false) ) #{table.number}
+          else
+            option(value=table._id) #{table.number}
+    button.btn.btn-primary(type='submit') Submit
+
+  if errors
+   ul
+    for error in errors
+     li!= error.msg

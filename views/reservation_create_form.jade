@@ -22,11 +22,11 @@ block content
       label(for='date') Date:
       input#date.form-control(type='date' name='date' value=date readonly='true')
       label(for='start') Start:
-      select#table.form-control(type='select', placeholder='Select start time' name='start' required='true' )
+      select#table.form-control(placeholder='Select start time' name='start' required='true' )
         for time, i in start_times
             option(value=i) #{time}
       label(for='end') End:
-      select#table.form-control(type='select', placeholder='Select end time' name='end' required='true' )
+      select#table.form-control(placeholder='Select end time' name='end' required='true' )
         for time, i in end_times
             option(value=i) #{time}
     button.btn.btn-primary(type='submit') Submit
